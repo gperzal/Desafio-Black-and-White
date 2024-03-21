@@ -6,12 +6,14 @@ exports.convertToBlackAndWhite = async (req, res) => {
     const imageUrl = req.body.imageUrl;
     try {
         const image = await Jimp.read(imageUrl);
-        image
+        const imageName = `${uuidv4()}.jpg`;
+        const imagePath = path.join('assets', 'images', imageName);
+        await image
             .greyscale() // Convertir a escala de grises
             .resize(350, Jimp.AUTO) // Redimensionar
-            .write(path.join(__dirname, '..', 'public', 'assets', 'images', `${uuidv4()}.jpg`), () => {
-                res.send('<h2>Imagen procesada y guardada.</h2>');
-            });
+            .writeAsync(path.join(__dirname, '..', 'public', imagePath)); // Guardar la imagen
+
+        res.redirect(`/imagen?name=${imageName}`); // Redirigir al usuario a la ruta /imagen con el nombre de la imagen como parámetro
     } catch (error) {
         console.error('Error procesando la imagen:', error);
         res.status(500).send('Error procesando la imagen.');
